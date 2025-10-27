@@ -1,3 +1,4 @@
+import { checkPassword, hashPassword } from "@/utils/bcrypt";
 import {
   type Document,
   Model,
@@ -14,6 +15,7 @@ interface UserModel extends Document<ObjectId> {
 	reputation: number;
 	createdAt: Date;
 	updatedAt: Date;
+	comparePassword: (password: string) => Promise<boolean>;
 }
 
 const userSchema: Schema<UserModel> = new Schema<UserModel>(
@@ -51,6 +53,15 @@ const userSchema: Schema<UserModel> = new Schema<UserModel>(
 		timestamps: true,
 	},
 );
+
+userSchema.pre("save", async function (next) {
+	if (!this.isModified("password")) next();
+	hashPassword(this.password);
+});
+
+userSchema.methods.comparePassword = async function (password: string) {
+	return checkPassword(password, this.password);
+};
 
 const User = (models.User as Model<UserModel>) ?? model("User", userSchema);
 
