@@ -1,4 +1,4 @@
-import { checkPassword, hashPassword } from "@/utils/bcrypt";
+import { checkPassword } from "@/utils/bcrypt";
 import {
   type Document,
   Model,
@@ -34,13 +34,14 @@ const userSchema: Schema<UserModel> = new Schema<UserModel>(
 			unique: true,
 			lowercase: true,
 			minlength: 3,
-			maxlength: 30,
+			maxlength: 100,
 			index: true,
 			required: true,
 		},
 		password: {
 			type: String,
 			required: true,
+			select: false,
 		},
 		reputation: {
 			type: Number,
@@ -54,10 +55,16 @@ const userSchema: Schema<UserModel> = new Schema<UserModel>(
 	},
 );
 
-userSchema.pre("save", async function (next) {
-	if (!this.isModified("password")) next();
-	hashPassword(this.password);
-});
+// userSchema.pre("save", async function (next) {
+// 	if (!this.isModified("password")) return next();
+// 	try {
+// 		this.password = await hashPassword(this.password);
+// 		next();
+// 	} catch (error) {
+// 		console.log("pre hook", error);
+// 		next(error);
+// 	}
+// });
 
 userSchema.methods.comparePassword = async function (password: string) {
 	return checkPassword(password, this.password);
