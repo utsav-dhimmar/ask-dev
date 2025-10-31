@@ -2,6 +2,7 @@ import connnectToDatabase from "@/db";
 import User from "@/model/user.model";
 import { signUpSchema } from "@/schema/user.schema";
 import { hashPassword } from "@/utils/bcrypt";
+import { sendEmail } from "@/utils/nodemailer-helper";
 import { parserWithZodSchema } from "@/utils/zod-validation";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
 		if (!newUser) {
 			throw new Error("unable to create user");
 		}
+		await sendEmail({ username, email });
 		console.log(newUser);
 		return NextResponse.json(
 			{
