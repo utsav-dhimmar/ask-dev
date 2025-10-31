@@ -4,8 +4,8 @@ const envSchema = z.object({
 	MONGODB_URI: z.string(),
 	AUTH_SECRET: z.string(),
 	NEXTAUTH_URL: z.string(),
-	AUTH_GITHUB_ID: z.string(),
-	AUTH_GITHUB_SECRET: z.string(),
+	GITHUB_ID: z.string(),
+	GITHUB_SECRET: z.string(),
 	NODE_ENV: z.string(),
 	DOMAIN_URL: z.string(),
 	MAILTRAP_USERNAME: z.string(),
@@ -35,5 +35,5 @@ function checkEnvs() {
 }
 
 checkEnvs();
-
+// @ts-ignore
 export default env;
