@@ -1,7 +1,8 @@
+import env from "@/app/env";
 import { connect, connection } from "mongoose";
 
 export default async function connnectToDatabase() {
-	const mongoDBUri = process.env.MONGODB_URI;
+	const mongoDBUri = env.MONGODB_URI;
 	if (!mongoDBUri) {
 		throw new Error("[Server] require MONGODB_URI");
 	}
