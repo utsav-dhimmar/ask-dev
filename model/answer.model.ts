@@ -1,6 +1,15 @@
-import { Document, Model, model, models, ObjectId, Schema } from "mongoose";
+import {
+    Document,
+    Model,
+    model,
+    models,
+    ObjectId,
+    PaginateModel,
+    Schema,
+} from "mongoose";
+import paginate from "mongoose-paginate-v2";
 
-interface AnswerModel extends Document<ObjectId> {
+interface IAnswerModel extends Document<ObjectId> {
 	content: string;
 	question_id: ObjectId;
 	user_id: ObjectId;
@@ -10,7 +19,7 @@ interface AnswerModel extends Document<ObjectId> {
 	updatedAt: Date;
 }
 
-const answerSchema = new Schema<AnswerModel>(
+const answerSchema = new Schema<IAnswerModel>(
 	{
 		content: {
 			type: String,
@@ -45,7 +54,12 @@ const answerSchema = new Schema<AnswerModel>(
 	},
 );
 
+answerSchema.plugin(paginate);
+
+interface AnswerDocument extends IAnswerModel {}
+
 const Answer =
-	(models.Answer as Model<AnswerModel>) ?? model("Answer", answerSchema);
+	(models.Answer as Model<AnswerDocument, PaginateModel<AnswerDocument>>) ??
+	model("Answer", answerSchema);
 
 export default Answer;
