@@ -1,5 +1,7 @@
 import User from "@/model/user.model";
+import { signInSchma } from "@/schema/user.schema";
 import { checkPassword } from "@/utils/bcrypt";
+import { parserWithZodSchema } from "@/utils/zod-validation";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
@@ -25,12 +27,21 @@ export const authOptions: NextAuthOptions = {
 				},
 			},
 			async authorize(credentials) {
-				const email = credentials?.email;
-				const password = credentials?.password;
 				try {
-					if (!email || !password) {
-						throw new Error("Email and password are required");
+					const zodValidation = parserWithZodSchema(
+						{
+							email: credentials?.email,
+							password: credentials?.password,
+						},
+						signInSchma,
+					);
+					if (!zodValidation.success) {
+						throw new Error(
+							Object.values(zodValidation.error).join(", "),
+						);
 					}
+
+					const { email, password } = zodValidation.data;
 
 					const user = await User.findOne({
 						email,
@@ -82,3 +93,11 @@ export const authOptions: NextAuthOptions = {
 		signIn: "/signin",
 	},
 };
+export const providerMap = authOptions.providers.map(provider => {
+	if (typeof provider === "function") {
+		const providerData = provider();
+		return { id: providerData.id, name: providerData.name };
+	} else {
+		return { id: provider.id, name: provider.name };
+	}
+});
